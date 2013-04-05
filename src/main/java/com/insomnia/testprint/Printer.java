@@ -3,6 +3,7 @@ package com.insomnia.testprint;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
@@ -17,29 +18,23 @@ import org.rev6.scf.ScpFile;
 import org.rev6.scf.SshConnection;
 import org.rev6.scf.SshException;
 
-import com.pacytology.pcs.Utils;
+import com.google.common.io.Files;
 
 public class Printer {
 
 	/**
 	 * @param args
+	 * @throws IOException 
+	 * @throws PrintException 
 	 */
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException, PrintException {
 		System.out.println("Starting dot matrix print");
 		javax.print.DocFlavor flavor = javax.print.DocFlavor.INPUT_STREAM.AUTOSENSE;
 		
-		List<Byte> fileContents = new ArrayList<Byte>();
 
-//		fileContents.add(new Byte((byte)0x1D));
-//		fileContents.add(new Byte((byte)0x21));
-//		fileContents.add(new Byte((byte)1));
-		File file = getFile( System.getProperty("java.io.tmpdir"), "/u01/reports", "DEC2012.uns");
-		byte[] bArr = new byte[fileContents.size()];
-		int i = 0;
-		for (Byte b : fileContents) {
-			bArr[i] = fileContents.get(i);
-			i++;
-		}
+		File file = getFile( System.getProperty("java.io.tmpdir"), "/u01/reports/", "DEC2012.uns");
+		byte[] bArr =  Files.toByteArray(file);
+		
 		InputStream finalFile = new ByteArrayInputStream(bArr);
 		javax.print.attribute.PrintRequestAttributeSet pras = new javax.print.attribute.HashPrintRequestAttributeSet();
 
