@@ -1,6 +1,7 @@
 package com.insomnia.testprint;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -33,24 +34,35 @@ public class DotMatrixPrint {
 		System.out.println("Printing from " + file.getAbsolutePath());
 
 		List<Byte> fileContents = new ArrayList<Byte>();
-
+		
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		byte[] buffer = new byte[1024*16];
+		int size = 0;
+		out.write(new Byte((byte) 0x1D));
+		//out.write(new Byte((byte) 0x21));
+		//out.write(new Byte((byte) 1));
+		while ((size = fileio.read(buffer)) != -1) {
+			out.write(buffer, 0, size) ;
+		}
+		byte[] bArr = out.toByteArray();
 //		fileContents.add(new Byte((byte) 0x1D));
 //		fileContents.add(new Byte((byte) 0x21));
 //		fileContents.add(new Byte((byte) 1));
 		// for each byte in file
-		byte x = 0;
-		while (x > -1) {
-			x = (byte) fileio.read();
-			fileContents.add(x);
-		}
-		fileio.close();
+//		byte x = 0;
+//		while (x > -1) {
+//			x = (byte) fileio.read();
+//			fileContents.add(x);
+//		}
+//		fileio.close();
 
-		byte[] bArr = new byte[fileContents.size()];
-		int i = 0;
-		for (Byte b : fileContents) {
-			bArr[i] = fileContents.get(i);
-			i++;
-		}
+		//byte[] bArr = new byte[fileContents.size()];
+//		byte[] bArr = fileio.toString().getBytes();
+//		int i = 0;
+//		for (Byte b : fileContents) {
+//			bArr[i] = fileContents.get(i);
+//			i++;
+//		}
 		InputStream finalFile = new ByteArrayInputStream(bArr);
 		AttributeSet pras = new HashPrintRequestAttributeSet();
 
