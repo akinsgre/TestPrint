@@ -26,6 +26,12 @@ public class DotMatrixPrint {
 	 * @throws IOException
 	 * @throws PrintException 
 	 */
+	final private static Integer INIT = new Integer(64);
+	final public static Integer PICA = new Integer(80);
+	final public static Integer ELITE = new Integer(77);
+	final public static Integer COMPRESSED = new Integer(48);
+	final public static Integer CONDENSED = new Integer(15);
+	final public static Integer EMPHASIZED = new Integer(69);
 	public static void main(String[] args) throws IOException, PrintException {
 		javax.print.DocFlavor flavor = javax.print.DocFlavor.INPUT_STREAM.AUTOSENSE;
 		File file = new File("ppr_clm_test");
@@ -38,31 +44,16 @@ public class DotMatrixPrint {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		byte[] buffer = new byte[1024*16];
 		int size = 0;
-		out.write(new Byte((byte) 0x1D));
+		out.write(INIT);
+		out.write(CONDENSED);
+		out.write(PICA);
 		//out.write(new Byte((byte) 0x21));
 		//out.write(new Byte((byte) 1));
 		while ((size = fileio.read(buffer)) != -1) {
 			out.write(buffer, 0, size) ;
 		}
 		byte[] bArr = out.toByteArray();
-//		fileContents.add(new Byte((byte) 0x1D));
-//		fileContents.add(new Byte((byte) 0x21));
-//		fileContents.add(new Byte((byte) 1));
-		// for each byte in file
-//		byte x = 0;
-//		while (x > -1) {
-//			x = (byte) fileio.read();
-//			fileContents.add(x);
-//		}
-//		fileio.close();
 
-		//byte[] bArr = new byte[fileContents.size()];
-//		byte[] bArr = fileio.toString().getBytes();
-//		int i = 0;
-//		for (Byte b : fileContents) {
-//			bArr[i] = fileContents.get(i);
-//			i++;
-//		}
 		InputStream finalFile = new ByteArrayInputStream(bArr);
 		AttributeSet pras = new HashPrintRequestAttributeSet();
 
@@ -74,7 +65,7 @@ public class DotMatrixPrint {
 		javax.print.DocPrintJob job = printService.createPrintJob();
 
 		javax.print.attribute.DocAttributeSet das = new javax.print.attribute.HashDocAttributeSet();
-
+ 
 		javax.print.Doc doc = new javax.print.SimpleDoc(finalFile, flavor, das);
 		job.print(doc, (PrintRequestAttributeSet) pras);
 		System.out.println("Finished with dot matrix print");
