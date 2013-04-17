@@ -34,7 +34,7 @@ public class DotMatrixPrint {
 	final public static Integer EMPHASIZED = new Integer(69);
 	public static void main(String[] args) throws IOException, PrintException {
 		javax.print.DocFlavor flavor = javax.print.DocFlavor.INPUT_STREAM.AUTOSENSE;
-		File file = new File("ppr_clm_test");
+		File file = new File("test_data.txt");
 		InputStream fileio = new FileInputStream(file);
 		
 		System.out.println("Printing from " + file.getAbsolutePath());
