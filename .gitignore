@@ -4,5 +4,6 @@ target/
 .classpath
 .project
 .settings
+*.whp
 *.pcs
 logs/
