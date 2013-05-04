@@ -1,11 +1,17 @@
 package com.insomnia.testprint;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,38 +33,30 @@ public class DotMatrixPrint {
 	 * @throws PrintException 
 	 */
 	final private static Integer INIT = new Integer(64);
+	final private static Integer MASTER_SELECT = new Integer(33);
 	final public static Integer PICA = new Integer(80);
 	final public static Integer ELITE = new Integer(77);
 	final public static Integer COMPRESSED = new Integer(48);
 	final public static Integer CONDENSED = new Integer(15);
 	final public static Integer EMPHASIZED = new Integer(69);
+
 	public static void main(String[] args) throws IOException, PrintException {
-		javax.print.DocFlavor flavor = javax.print.DocFlavor.INPUT_STREAM.AUTOSENSE;
-		File file = new File("test_data.txt");
-		InputStream fileio = new FileInputStream(file);
-		
-		System.out.println("Printing from " + file.getAbsolutePath());
 
-		List<Byte> fileContents = new ArrayList<Byte>();
+		String[] files = getFileList(".", "sum") ; 
 		
-		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		byte[] buffer = new byte[1024*16];
-		int size = 0;
-		out.write(INIT);
-		out.write(CONDENSED);
-		out.write(PICA);
-		//out.write(new Byte((byte) 0x21));
-		//out.write(new Byte((byte) 1));
-		while ((size = fileio.read(buffer)) != -1) {
-			out.write(buffer, 0, size) ;
+		List<File> filelist = new ArrayList<File>() ;
+		for (String filename : files) {
+			filelist.add(new File(filename));
 		}
-		byte[] bArr = out.toByteArray();
+		byte[] bArr = concatenate(filelist);
 
-		InputStream finalFile = new ByteArrayInputStream(bArr);
+
+		javax.print.DocFlavor flavor = javax.print.DocFlavor.INPUT_STREAM.AUTOSENSE;		
+		InputStream finalFile = addPrintCharTo(bArr);
 		AttributeSet pras = new HashPrintRequestAttributeSet();
 
 		PrintService printService = getPrintService(flavor, pras,
-				"Epson DFX-5000+");
+				"\\\\http://192.168.1.103:631\\DFX-5000P");
 		if (printService == null) {
 			throw new PrintException("Configured Printer doesn't exist.. check runpcs.bat");
 		}
@@ -77,12 +75,64 @@ public class DotMatrixPrint {
 				flavor, pras);
 		PrintService printService = null;
 		for (PrintService ps : printServices) {
+			System.out.println("Printer = " +  ps.getName());
 			if (ps.getName().equals(printerName)) {
 				printService = ps;
 			}
 		}
 		return printService;
 	}
+	private static byte[] concatenate(List<File> files) throws FileNotFoundException, IOException {
+
+
+	        ByteArrayOutputStream out = new ByteArrayOutputStream();
+	        for (File file : files) {
+
+	                System.out.println("Processing " + file.getPath() + "... ");
+	                BufferedReader br = new BufferedReader(new FileReader(file.getPath()));
+	            	String line = br.readLine();
+	                while (line != null) {
+	                	out.write(line.getBytes());
+	                	String newline = System.getProperty("line.separator");
+
+	                	out.write(newline.getBytes());
+	                	//out.write(CARRIAGE_RETURN) ;
+	                	line = br.readLine();
+	                }
+	                
+	                br.close();
+	        }
+	        byte[] bArr = out.toByteArray();
+	        return bArr ;
+		}
+	
+		private static String[] getFileList(String directory, final String ext) {
+			class OnlyCertainFiles implements FilenameFilter {
+
+				public boolean accept(File dir, String name) {
+					if (name.endsWith(ext)) return true ; 
+					return false ;
+				}
+				
+			}
+			return new File(directory).list( new OnlyCertainFiles()) ; 
+		}
+		private static InputStream addPrintCharTo(byte[]  bArr)
+				throws IOException {
+			ByteArrayOutputStream out = new ByteArrayOutputStream();
+			out.write(INIT);
+			//	out.write(CONDENSED);
+			//	out.write(PICA);
+			out.write(MASTER_SELECT);
+			out.write(new Integer(0));
+			for (int i = 0; i<bArr.length; i++) {
+				out.write(new byte[]{bArr[i]}, 0, 1) ;
+			}
+			byte[] outArr = out.toByteArray();
+
+			InputStream finalFile = new ByteArrayInputStream(outArr);
+			return finalFile;
+		}
 }
 
 
