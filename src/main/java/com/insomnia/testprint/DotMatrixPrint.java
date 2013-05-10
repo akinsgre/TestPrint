@@ -42,7 +42,7 @@ public class DotMatrixPrint {
 
 	public static void main(String[] args) throws IOException, PrintException {
 
-		String[] files = getFileList(".", "sum") ; 
+		String[] files = getFileList(".", "txt") ; 
 		
 		List<File> filelist = new ArrayList<File>() ;
 		for (String filename : files) {
@@ -56,16 +56,19 @@ public class DotMatrixPrint {
 		AttributeSet pras = new HashPrintRequestAttributeSet();
 
 		PrintService printService = getPrintService(flavor, pras,
-				"\\\\http://192.168.1.103:631\\DFX-5000P");
+				"Local");
 		if (printService == null) {
 			throw new PrintException("Configured Printer doesn't exist.. check runpcs.bat");
 		}
 		javax.print.DocPrintJob job = printService.createPrintJob();
+		JobCompleteMonitor monitor = new JobCompleteMonitor();
 
 		javax.print.attribute.DocAttributeSet das = new javax.print.attribute.HashDocAttributeSet();
  
 		javax.print.Doc doc = new javax.print.SimpleDoc(finalFile, flavor, das);
 		job.print(doc, (PrintRequestAttributeSet) pras);
+		System.out.println("Printing in progress");
+		monitor.waitForJobCompletion();
 		System.out.println("Finished with dot matrix print");
 	}
 
