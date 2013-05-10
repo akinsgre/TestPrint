@@ -7,4 +7,5 @@ target/
 *.whp
 test_data.txt
 *.pcs
+test.txt
 logs/
