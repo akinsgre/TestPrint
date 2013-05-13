@@ -56,7 +56,7 @@ public class DotMatrixPrint {
 		AttributeSet pras = new HashPrintRequestAttributeSet();
 
 		PrintService printService = getPrintService(flavor, pras,
-				"Local");
+				"DFX-5000P-BC24E0");
 		if (printService == null) {
 			throw new PrintException("Configured Printer doesn't exist.. check runpcs.bat");
 		}
